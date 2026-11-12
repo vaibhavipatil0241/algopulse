@@ -1,0 +1,499 @@
+/* ==========================================================
+   ALGORITHM VISUALIZER - MODULE-SPECIFIC VISUALIZERS
+   Modules:
+   1. Sorting (Bars, Index Labels, Dynamic Arrow Movement Overlay)
+   2. Pathfinding & Graphs (Grid Nodes, Walls, Weights, Traversal)
+   3. Binary Trees (SVG Nodes, Edges, Traversal Queue)
+   4. Searching (Cells, Low/Mid/High Calipers, Discard States)
+   5. Dynamic Programming (2D State Table, Cell Recurrence Dependencies)
+   ========================================================== */
+
+/* ----------------------------------------------------------
+   1. SORTING VISUALIZER
+   ---------------------------------------------------------- */
+.sorting-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 50px 24px 32px 24px;
+  gap: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* SVG Dynamic Movement Arrow Overlay */
+.movement-arrow-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.arrow-arc {
+  fill: none;
+  stroke: var(--accent-primary);
+  stroke-width: 2;
+  stroke-dasharray: 4, 4;
+  animation: arcDash 1s linear infinite;
+}
+
+@keyframes arcDash {
+  to {
+    stroke-dashoffset: -8;
+  }
+}
+
+.arrow-label {
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  font-weight: 600;
+  fill: var(--accent-primary);
+  text-anchor: middle;
+}
+
+/* Sort Bar Element */
+.sort-bar {
+  flex: 1;
+  max-width: 42px;
+  min-width: 8px;
+  background: var(--color-unsorted-bar);
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
+  transition: height 0.12s ease-out, background-color 0.18s ease, transform 0.18s ease;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+/* Value inside/above bar */
+.sort-bar-value {
+  position: absolute;
+  top: -22px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Zero-based index underneath bar */
+.sort-bar-index {
+  position: absolute;
+  bottom: -22px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Bar States (Calibrated & Non-neon) */
+.sort-bar.state-key, .sort-bar.state-pivot {
+  background: var(--color-key) !important;
+  transform: translateY(-4px);
+  box-shadow: 0 4px 10px var(--color-key-soft);
+}
+.sort-bar.state-key .sort-bar-value, .sort-bar.state-pivot .sort-bar-value {
+  color: var(--color-key);
+  font-weight: 800;
+}
+
+.sort-bar.state-comparing {
+  background: var(--color-comparing) !important;
+  transform: translateY(-3px);
+  box-shadow: 0 3px 8px var(--color-comparing-soft);
+}
+.sort-bar.state-comparing .sort-bar-value {
+  color: var(--color-comparing);
+  font-weight: 800;
+}
+
+.sort-bar.state-swapping {
+  background: var(--color-swapping) !important;
+  transform: translateY(-6px);
+}
+
+.sort-bar.state-sorted {
+  background: var(--color-sorted) !important;
+  box-shadow: 0 2px 6px var(--color-sorted-soft);
+}
+.sort-bar.state-sorted .sort-bar-value {
+  color: var(--color-sorted);
+}
+
+/* ----------------------------------------------------------
+   2. PATHFINDING & GRAPH VISUALIZER
+   ---------------------------------------------------------- */
+.pathfinding-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 14px;
+  overflow: auto;
+}
+
+.grid-board {
+  display: grid;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  user-select: none;
+  cursor: crosshair;
+}
+
+.grid-node {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.12s ease;
+  position: relative;
+}
+
+.grid-node.node-wall {
+  background-color: var(--color-wall);
+  border-color: var(--color-wall);
+  animation: wallPop 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.grid-node.node-weight {
+  background-color: rgba(234, 179, 8, 0.15);
+  border-color: rgba(234, 179, 8, 0.35);
+}
+
+.grid-node.node-weight::after {
+  content: '⚡';
+  font-size: 10px;
+  color: var(--color-weight);
+}
+
+.grid-node.node-start {
+  background: var(--color-start);
+  border-color: var(--color-start);
+  cursor: grab;
+}
+
+.grid-node.node-start::after {
+  content: '▶';
+  color: #ffffff;
+  font-size: 10px;
+}
+
+.grid-node.node-target {
+  background: var(--color-target);
+  border-color: var(--color-target);
+  cursor: grab;
+}
+
+.grid-node.node-target::after {
+  content: '◎';
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.grid-node.node-visited {
+  animation: visitedRipple 0.3s ease-out forwards;
+}
+
+.grid-node.node-path {
+  animation: shortestPathTrace 0.35s ease-out forwards;
+}
+
+@keyframes wallPop {
+  0% { transform: scale(0.4); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes visitedRipple {
+  0% { transform: scale(0.3); background-color: var(--accent-primary); border-radius: 50%; }
+  100% { transform: scale(1); background-color: rgba(56, 189, 248, 0.25); border-color: rgba(56, 189, 248, 0.4); }
+}
+
+@keyframes shortestPathTrace {
+  0% { transform: scale(0.5); background-color: #f59e0b; }
+  100% { transform: scale(1); background-color: var(--accent-primary); border-color: var(--accent-primary); }
+}
+
+/* ----------------------------------------------------------
+   3. BINARY TREE VISUALIZER
+   ---------------------------------------------------------- */
+.tree-stage {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.tree-canvas-container {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.tree-canvas-container svg {
+  width: 100%;
+  height: 100%;
+}
+
+.tree-node-circle {
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+  stroke: var(--border-medium);
+  stroke-width: 2;
+  fill: var(--bg-surface-elevated);
+}
+
+.tree-node-circle:hover {
+  stroke: var(--accent-primary);
+  fill: var(--bg-card-hover);
+}
+
+.tree-node-circle.node-active {
+  stroke: var(--accent-primary);
+  fill: var(--accent-soft);
+}
+
+.tree-node-circle.node-found {
+  stroke: var(--color-sorted);
+  fill: var(--color-sorted-soft);
+}
+
+.tree-node-text {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text-primary);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.tree-edge {
+  stroke: var(--border-medium);
+  stroke-width: 2;
+  transition: stroke 0.25s ease;
+}
+
+.tree-edge.edge-active {
+  stroke: var(--accent-primary);
+  stroke-width: 2.5;
+}
+
+.tree-traversal-queue {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  overflow-x: auto;
+  min-height: 48px;
+}
+
+.traversal-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-xs);
+  background: var(--accent-soft);
+  border: 1px solid rgba(217, 119, 6, 0.3);
+  color: var(--accent-text);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 12px;
+  animation: fadeIn 0.2s ease-out;
+  flex-shrink: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ----------------------------------------------------------
+   4. SEARCHING VISUALIZER
+   ---------------------------------------------------------- */
+.searching-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  gap: 20px;
+}
+
+.search-array-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  max-width: 900px;
+  position: relative;
+  padding: 28px 8px;
+}
+
+.search-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 54px;
+  background: var(--bg-surface-elevated);
+  border: 1.5px solid var(--border-medium);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  transition: all 0.18s ease;
+  position: relative;
+}
+
+.search-cell-index {
+  position: absolute;
+  top: -20px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.search-cell-pointer {
+  position: absolute;
+  bottom: -22px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.search-cell.pointer-low {
+  border-color: #3b82f6;
+}
+.search-cell.pointer-low .search-cell-pointer {
+  color: #3b82f6;
+}
+
+.search-cell.pointer-mid {
+  border-color: var(--accent-primary);
+  background: var(--accent-soft);
+  transform: translateY(-3px);
+}
+.search-cell.pointer-mid .search-cell-pointer {
+  color: var(--accent-primary);
+}
+
+.search-cell.pointer-high {
+  border-color: #8b5cf6;
+}
+.search-cell.pointer-high .search-cell-pointer {
+  color: #8b5cf6;
+}
+
+.search-cell.cell-discarded {
+  opacity: 0.25;
+  transform: scale(0.92);
+  filter: grayscale(1);
+}
+
+.search-cell.cell-match {
+  background: var(--color-sorted-soft);
+  border-color: var(--color-sorted);
+  color: var(--color-sorted);
+  transform: scale(1.08);
+}
+
+/* ----------------------------------------------------------
+   5. DYNAMIC PROGRAMMING (DP) VISUALIZER
+   ---------------------------------------------------------- */
+.dp-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  overflow: auto;
+}
+
+.dp-table-wrapper {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  padding: 12px;
+  overflow: auto;
+  max-height: 80%;
+  max-width: 95%;
+}
+
+.dp-table {
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+
+.dp-table th, .dp-table td {
+  padding: 8px 12px;
+  text-align: center;
+  border: 1px solid var(--border-subtle);
+  min-width: 40px;
+}
+
+.dp-table th {
+  background: var(--bg-surface-elevated);
+  color: var(--accent-primary);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+}
+
+.dp-table td {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+}
+
+.dp-table td.dp-active {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  border-color: var(--accent-primary);
+  font-weight: 700;
+  transform: scale(1.04);
+}
+
+.dp-table td.dp-source {
+  background: var(--color-sorted-soft);
+  color: var(--color-sorted);
+  border-color: var(--color-sorted);
+}
+
+.dp-formula-banner {
+  margin-top: 10px;
+  padding: 6px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent-primary);
+}

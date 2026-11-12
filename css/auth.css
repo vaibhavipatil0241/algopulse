@@ -1,0 +1,271 @@
+/* ==========================================================
+   AUTH & PROFILE UI (Feature 1)
+   Uses the existing design tokens from style.css, so both
+   light and dark themes work automatically.
+   ========================================================== */
+
+/* Elements with the [hidden] attribute must really disappear
+   (author styles like .btn { display:inline-flex } would override it). */
+.auth-nav [hidden],
+.auth-nav[hidden],
+.auth-scope [hidden],
+.toast-container [hidden] {
+  display: none !important;
+}
+
+/* ---------- Header buttons / user chip ---------- */
+.auth-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 4px;
+}
+
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 10px 3px 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.user-chip:hover {
+  border-color: var(--border-focus);
+  background: var(--bg-card-hover);
+}
+
+.user-chip-name {
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  color: var(--text-inverse);
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.avatar-lg {
+  width: 48px;
+  height: 48px;
+  font-size: 20px;
+}
+
+/* ---------- Auth modal ---------- */
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.auth-tab:hover {
+  color: var(--text-primary);
+}
+
+.auth-tab.active {
+  color: var(--accent-text);
+  border-bottom-color: var(--accent-primary);
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.auth-field > span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.auth-field .input-field {
+  width: 100%;
+  padding: 8px 10px;
+}
+
+.auth-field .input-field.invalid {
+  border-color: var(--color-comparing);
+}
+
+.auth-field-error {
+  font-size: 11.5px;
+  color: var(--color-comparing);
+}
+
+.auth-hint {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.auth-alert {
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+}
+
+.auth-alert.error {
+  background: var(--color-comparing-soft);
+  border-color: var(--color-comparing);
+  color: var(--text-primary);
+}
+
+.auth-alert.success {
+  background: var(--color-sorted-soft);
+  border-color: var(--color-sorted);
+  color: var(--text-primary);
+}
+
+.auth-form .modal-footer {
+  justify-content: flex-end;
+}
+
+/* Loading spinner inside buttons */
+.btn-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: authSpin 0.7s linear infinite;
+}
+
+@keyframes authSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Profile modal ---------- */
+.profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.profile-summary-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.profile-summary-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.profile-section-title {
+  margin: 4px 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-primary);
+}
+
+.profile-section + .profile-section {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.auth-inline-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-footer.space-between {
+  justify-content: space-between;
+}
+
+/* ---------- Toasts (above modals, z-index 1000) ---------- */
+.toast-container {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  min-width: 220px;
+  max-width: 340px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-primary);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-medium);
+  border-left-width: 4px;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: auto;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast-success { border-left-color: var(--color-sorted); }
+.toast-error   { border-left-color: var(--color-comparing); }
+.toast-info    { border-left-color: var(--accent-primary); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1080px) {
+  .user-chip-name { display: none; }
+  .user-chip { padding-right: 4px; }
+}
+
+@media (max-width: 760px) {
+  /* The login dialog has a "Create account" tab, so the extra header button can go */
+  #btn-open-register { display: none; }
+}
+
+@media (max-width: 520px) {
+  .toast-container { left: 12px; right: 12px; bottom: 12px; }
+  .toast { max-width: none; }
+}

@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AlgoPulse — Interactive Algorithm & DSA Visualizer</title>
+  <meta name="description" content="A state-of-the-art interactive Algorithm & Data Structures visualizer with step-by-step playback, multi-language synchronized code highlighting, and beginner-friendly explanations.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f59e0b' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><polyline points='22 12 18 12 15 21 9 3 6 12 2 12'/></svg>">
+
+  <!-- Google Fonts: Outfit & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- App Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/visualizers.css">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+  <div id="app-container">
+
+    <!-- ==================== TOP NAVIGATION HEADER ==================== -->
+    <header class="top-nav">
+      <!-- Left: Brand Logo & Title -->
+      <div class="brand-section" id="btn-brand-home" title="AlgoPulse Home">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <div class="brand-title">
+          Algo<span>Pulse</span>
+        </div>
+      </div>
+
+      <!-- Center: Navigation Mode Tabs -->
+      <nav class="nav-mode-tabs">
+        <button class="nav-mode-btn active" id="mode-visualize">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+          <span>Visualize</span>
+        </button>
+        <button class="nav-mode-btn" id="mode-learn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+          <span>Learn</span>
+        </button>
+        <button class="nav-mode-btn" id="mode-practice">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+          <span>Practice</span>
+        </button>
+      </nav>
+
+      <!-- Center-Right: Global Search Bar -->
+      <div class="search-bar-wrapper">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" class="search-bar-input" id="global-search-input" placeholder="Search algorithms... (e.g. Insertion, Dijkstra)" autocomplete="off">
+      </div>
+
+      <!-- Right: Actions (Sound, Theme, Help) -->
+      <div class="nav-actions">
+        <!-- Audio Synthesizer Controls -->
+        <div class="audio-controls">
+          <button class="btn btn-icon" id="btn-mute" title="Toggle Sound (M)">
+            <svg id="sound-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+            <svg id="mute-icon" style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <line x1="23" y1="9" x2="17" y2="15"></line>
+              <line x1="17" y1="9" x2="23" y2="15"></line>
+            </svg>
+          </button>
+          <input type="range" id="volume-slider" min="0" max="0.5" step="0.01" value="0.15" title="Volume">
+        </div>
+
+        <!-- Dark / Light Theme Toggle -->
+        <button class="btn btn-icon" id="btn-theme-toggle" title="Toggle Light / Dark Mode">
+          <svg id="theme-sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+
+        <!-- Keyboard Shortcuts & Help -->
+        <button class="btn btn-icon" id="btn-help" title="Shortcuts & Guide (?)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </button>
+
+        <!-- Account: shown logged-out (Log in / Sign up) or logged-in (user chip) -->
+        <div class="auth-nav" id="auth-nav">
+          <button class="btn" id="btn-open-login" title="Log in">Log in</button>
+          <button class="btn btn-primary" id="btn-open-register" title="Create an account">Sign up</button>
+          <button class="user-chip" id="btn-user-chip" title="Your profile" hidden>
+            <span class="avatar" id="user-chip-avatar">A</span>
+            <span class="user-chip-name" id="user-chip-name">user</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================== MAIN WORKSPACE CONTAINER ==================== -->
+    <main class="workspace-container">
+
+      <!-- ==================== 1. LEFT SIDEBAR: ALGORITHM NAVIGATION ==================== -->
+      <aside class="sidebar-nav" id="sidebar-navigation">
+        <div class="sidebar-nav-header">
+          <span class="sidebar-nav-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            Algorithms
+          </span>
+          <span class="badge" id="algo-count-badge">14 Algos</span>
+        </div>
+
+        <div class="sidebar-nav-list" id="sidebar-nav-list">
+          <!-- 1. Sorting Category -->
+          <div class="nav-category-group expanded" data-category="sorting">
+            <div class="nav-category-header active-cat">
+              <span class="nav-category-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                Sorting
+              </span>
+              <svg class="nav-category-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+            <div class="nav-items-sublist">
+              <div class="nav-item-link active" data-module="sorting" data-algo="bubble-sort">Bubble Sort</div>
+              <div class="nav-item-link" data-module="sorting" data-algo="selection-sort">Selection Sort</div>
+              <div class="nav-item-link" data-module="sorting" data-algo="insertion-sort">Insertion Sort</div>
+              <div class="nav-item-link" data-module="sorting" data-algo="merge-sort">Merge Sort</div>
+              <div class="nav-item-link" data-module="sorting" data-algo="quick-sort">Quick Sort</div>
+              <div class="nav-item-link" data-module="sorting" data-algo="heap-sort">Heap Sort</div>
+              <div class="nav-item-link" data-module="sorting" data-algo="counting-sort">Counting Sort</div>
+              <div class="nav-item-link" data-module="sorting" data-algo="radix-sort">Radix Sort</div>
+            </div>
+          </div>
+
+          <!-- 2. Searching Category -->
+          <div class="nav-category-group" data-category="searching">
+            <div class="nav-category-header">
+              <span class="nav-category-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                Searching
+              </span>
+              <svg class="nav-category-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+            <div class="nav-items-sublist">
+              <div class="nav-item-link" data-module="searching" data-algo="binary-search">Binary Search</div>
+              <div class="nav-item-link" data-module="searching" data-algo="linear-search">Linear Search</div>
+            </div>
+          </div>
+
+          <!-- 3. Graph & Pathfinding Category -->
+          <div class="nav-category-group" data-category="pathfinding">
+            <div class="nav-category-header">
+              <span class="nav-category-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                Graph & Grid
+              </span>
+              <svg class="nav-category-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+            <div class="nav-items-sublist">
+              <div class="nav-item-link" data-module="pathfinding" data-algo="dijkstra">Dijkstra's Algorithm</div>
+              <div class="nav-item-link" data-module="pathfinding" data-algo="astar">A* Search</div>
+              <div class="nav-item-link" data-module="pathfinding" data-algo="bfs">Breadth-First Search (BFS)</div>
+              <div class="nav-item-link" data-module="pathfinding" data-algo="dfs">Depth-First Search (DFS)</div>
+            </div>
+          </div>
+
+          <!-- 4. Trees Category -->
+          <div class="nav-category-group" data-category="trees">
+            <div class="nav-category-header">
+              <span class="nav-category-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"></circle><circle cx="6" cy="19" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="12" y1="8" x2="6" y2="16"></line><line x1="12" y1="8" x2="18" y2="16"></line></svg>
+                Trees
+              </span>
+              <svg class="nav-category-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+            <div class="nav-items-sublist">
+              <div class="nav-item-link" data-module="trees" data-algo="bst-inorder">In-Order Traversal</div>
+              <div class="nav-item-link" data-module="trees" data-algo="bst-preorder">Pre-Order Traversal</div>
+              <div class="nav-item-link" data-module="trees" data-algo="bst-postorder">Post-Order Traversal</div>
+              <div class="nav-item-link" data-module="trees" data-algo="bst-levelorder">Level-Order (BFS)</div>
+              <div class="nav-item-link" data-module="trees" data-algo="bst-search">BST Search</div>
+            </div>
+          </div>
+
+          <!-- 5. Dynamic Programming Category -->
+          <div class="nav-category-group" data-category="dp">
+            <div class="nav-category-header">
+              <span class="nav-category-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line></svg>
+                Dynamic Programming
+              </span>
+              <svg class="nav-category-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+            <div class="nav-items-sublist">
+              <div class="nav-item-link" data-module="dp" data-algo="knapsack-dp">0/1 Knapsack Problem</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ==================== 2. CENTER STAGE & LEARNING SECTION ==================== -->
+      <div class="main-stage-container">
+
+        <!-- STAGE HEADER: Title, Summary & Complexity Badges -->
+        <div class="stage-header-card">
+          <div class="stage-title-row">
+            <div class="stage-title-wrap">
+              <h1 class="stage-algo-title" id="intel-algo-name">Bubble Sort</h1>
+              <span class="badge badge-green" id="tag-inplace">In-place</span>
+            </div>
+
+            <!-- Complexity Pills -->
+            <div class="stage-badges-row">
+              <span class="badge badge-accent" id="comp-time-avg">Time: O(n²)</span>
+              <span class="badge" id="comp-space">Space: O(1)</span>
+              <span class="badge badge-green" id="tag-stable">Stable</span>
+            </div>
+          </div>
+
+          <p class="stage-algo-desc" id="intel-algo-desc">
+            Repeatedly steps through the list, compares adjacent elements, and swaps them if they are in the wrong order.
+          </p>
+        </div>
+
+        <!-- VISUALIZER CANVAS SECTION -->
+        <section class="stage-viewport-section">
+
+          <!-- Dynamic Sub-Controls Bar -->
+          <div class="visualizer-subcontrols-bar">
+            <!-- Hidden fallback select for JS compatibility -->
+            <select class="select-field" id="algo-select" style="display:none;"></select>
+
+            <!-- Sorting Controls -->
+            <div class="control-group" id="sorting-controls">
+              <button class="btn btn-primary" id="btn-shuffle-array">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+                Randomize
+              </button>
+              <select class="select-field" id="sort-distribution-select">
+                <option value="random">Random Distribution</option>
+                <option value="nearly-sorted">Nearly Sorted</option>
+                <option value="reversed">Reversed Order</option>
+                <option value="few-unique">Few Unique Values</option>
+              </select>
+              <div class="control-label">
+                Size: <span id="array-size-label" style="font-family:var(--font-mono); font-weight:600; color:var(--accent-text);">28</span>
+                <input type="range" id="array-size-slider" min="10" max="45" value="28">
+              </div>
+              <button class="btn" id="btn-custom-array">Custom Input</button>
+            </div>
+
+            <!-- Pathfinding Controls -->
+            <div class="control-group" id="pathfinding-controls" style="display: none;">
+              <select class="select-field" id="select-draw-mode">
+                <option value="wall">Draw Walls (Obstacles)</option>
+                <option value="weight">Draw Weights (Mud +5 Cost)</option>
+              </select>
+              <button class="btn" id="btn-random-maze">Random Maze</button>
+              <button class="btn" id="btn-recursive-maze">Recursive Division</button>
+              <button class="btn" id="btn-clear-path">Clear Path</button>
+              <button class="btn btn-danger" id="btn-clear-board">Clear All</button>
+            </div>
+
+            <!-- Tree Controls -->
+            <div class="control-group" id="tree-controls" style="display: none;">
+              <input type="number" class="input-field" id="tree-val-input" placeholder="Value (e.g. 45)" style="width: 120px;">
+              <button class="btn btn-primary" id="btn-insert-tree">Insert</button>
+              <button class="btn btn-danger" id="btn-delete-tree">Delete</button>
+              <input type="number" class="input-field" id="tree-target-input" placeholder="Search" value="35" style="width: 80px;">
+              <button class="btn" id="btn-sample-tree">Reset Preset</button>
+              <button class="btn" id="btn-clear-tree">Clear</button>
+            </div>
+
+            <!-- Searching Controls -->
+            <div class="control-group" id="searching-controls" style="display: none;">
+              <button class="btn btn-primary" id="btn-new-search-array">New Sorted Array</button>
+              <div class="control-label">Target:</div>
+              <input type="number" class="input-field" id="search-target-input" value="42" style="width: 85px;">
+            </div>
+
+            <!-- DP Controls -->
+            <div class="control-group" id="dp-controls" style="display: none;">
+              <span style="font-size:12px; color:var(--text-secondary);">Problem: 0/1 Knapsack (Cap: 6, 4 Items)</span>
+            </div>
+          </div>
+
+          <!-- The Main Viewport Card -->
+          <div class="viewport-card">
+            <!-- 1. Sorting Viewport -->
+            <div class="visualizer-viewport active" id="sorting-viewport">
+              <div id="sorting-container" class="sorting-container"></div>
+            </div>
+
+            <!-- 2. Pathfinding Viewport -->
+            <div class="visualizer-viewport" id="pathfinding-viewport">
+              <div id="pathfinding-container" class="pathfinding-stage"></div>
+            </div>
+
+            <!-- 3. Tree Viewport -->
+            <div class="visualizer-viewport" id="trees-viewport">
+              <div class="tree-stage">
+                <div id="tree-canvas-container" class="tree-canvas-container"></div>
+                <div id="tree-traversal-queue" class="tree-traversal-queue"></div>
+              </div>
+            </div>
+
+            <!-- 4. Searching Viewport -->
+            <div class="visualizer-viewport" id="searching-viewport">
+              <div id="searching-container" class="searching-stage"></div>
+            </div>
+
+            <!-- 5. DP Viewport -->
+            <div class="visualizer-viewport" id="dp-viewport">
+              <div id="dp-container" class="dp-stage"></div>
+            </div>
+
+            <!-- Canvas Legend Bar Underneath -->
+            <div class="canvas-legend-bar">
+              <div class="legend-item">
+                <span class="legend-dot" style="background:var(--color-sorted);"></span>
+                <span>Sorted</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background:var(--color-key);"></span>
+                <span>Current Key / Pivot</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background:var(--color-comparing);"></span>
+                <span>Comparing</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background:var(--color-unsorted);"></span>
+                <span>Unsorted</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Playback Controls Bar -->
+          <div class="playback-controls-bar">
+            <!-- Left: Playback Actions -->
+            <div class="playback-actions-center">
+              <button class="btn btn-icon" id="btn-reset" title="Reset (R)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><polyline points="3 3 3 8 8 8"></polyline></svg>
+              </button>
+              <button class="btn btn-icon" id="btn-step-backward" title="Step Backward (Left Arrow)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
+              </button>
+              <button class="btn btn-primary" id="btn-play" style="min-width: 90px; gap: 8px;">
+                <svg id="play-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+                <svg id="pause-icon" style="display:none;" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                <span id="play-btn-label">Play</span>
+              </button>
+              <button class="btn btn-icon" id="btn-step-forward" title="Step Forward (Right Arrow)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+              </button>
+              <button class="btn btn-icon" id="btn-jump-end" title="Auto Play / Complete">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line><line x1="15" y1="5" x2="15" y2="19"></line></svg>
+              </button>
+            </div>
+
+            <!-- Center: Speed Slider -->
+            <div class="control-group">
+              <span class="control-label">Speed:</span>
+              <input type="range" id="speed-slider" min="0.2" max="10" step="0.2" value="1" style="width: 100px;">
+              <span id="speed-label" style="font-family:var(--font-mono); font-size:12px; font-weight:600; color:var(--accent-text); min-width:30px;">1x</span>
+            </div>
+
+            <!-- Right: Step Progress Counter -->
+            <div class="control-group">
+              <span class="control-label">Step:</span>
+              <span id="metric-steps" style="font-family:var(--font-mono); font-weight:700; color:var(--text-primary);">0 / 0</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== 3. LOWER SPLIT AREA: CODE & LEARNING ==================== -->
+        <section class="learning-split-panel">
+
+          <!-- Left: Synchronized Code Editor Panel -->
+          <div class="code-panel">
+            <div class="code-panel-header">
+              <!-- Tabs: Code, Explanation, Pseudocode, Complexity -->
+              <div class="code-panel-tabs">
+                <button class="code-tab-btn active" data-tab="code">Code</button>
+                <button class="code-tab-btn" data-tab="explanation">Explanation</button>
+                <button class="code-tab-btn" data-tab="pseudocode">Pseudocode</button>
+                <button class="code-tab-btn" data-tab="complexity">Complexity</button>
+              </div>
+
+              <!-- Language Selector -->
+              <div class="lang-selector-wrap">
+                <select class="lang-selector-select" id="lang-selector">
+                  <option value="python">Python</option>
+                  <option value="javascript">JavaScript</option>
+                  <option value="cpp">C++</option>
+                  <option value="java">Java</option>
+                </select>
+                <!-- Hidden lang-btn elements for JS compatibility -->
+                <div style="display:none;">
+                  <button class="lang-btn active" data-lang="javascript">JS</button>
+                  <button class="lang-btn" data-lang="python">Py</button>
+                  <button class="lang-btn" data-lang="cpp">C++</button>
+                  <button class="lang-btn" data-lang="java">Java</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Code Tab Body -->
+            <div class="code-pre-container" id="code-pre-container">
+              <pre class="code-pre" id="code-display"></pre>
+            </div>
+
+            <!-- Secondary Tab Contents -->
+            <div class="tab-content-panel" id="tab-panel-explanation"></div>
+            <div class="tab-content-panel" id="tab-panel-pseudocode">
+              <pre id="pseudocode-pre" style="font-family:var(--font-mono); font-size:12px; line-height:1.6;"></pre>
+            </div>
+            <div class="tab-content-panel" id="tab-panel-complexity"></div>
+          </div>
+
+          <!-- Right: Beginner-Friendly Learning Step Card -->
+          <div class="learning-card">
+            <!-- Header with Step X of Y and Next/Prev Step -->
+            <div class="learning-card-header">
+              <div class="step-indicator-wrap">
+                <span class="step-counter-pill" id="learning-step-pill">Step 0 of 0</span>
+              </div>
+              <div class="step-nav-buttons">
+                <button class="step-nav-btn" id="btn-learning-prev" title="Previous Step">&lt;</button>
+                <button class="step-nav-btn" id="btn-learning-next" title="Next Step">&gt;</button>
+              </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="learning-progress-track">
+              <div class="learning-progress-fill" id="learning-progress-fill"></div>
+            </div>
+
+            <!-- What's Happening? -->
+            <div class="learning-op-headline" id="learning-op-headline">
+              Ready to execute algorithm
+            </div>
+            <div class="learning-explanation-text" id="learning-explanation-text">
+              Click Play to watch the code execute or Step to advance one line at a time.
+            </div>
+
+            <!-- Why & Next Educational Callouts -->
+            <div class="learning-callout-grid">
+              <div class="learning-callout" id="callout-why">
+                <span class="learning-callout-label">Why?</span>
+                <span class="learning-callout-content" id="learning-why-text">
+                  Watching each operation helps you connect the high-level algorithm logic with physical array transitions.
+                </span>
+              </div>
+              <div class="learning-callout callout-next" id="callout-next">
+                <span class="learning-callout-label">What happens next?</span>
+                <span class="learning-callout-content" id="learning-next-text">
+                  The active code line will evaluate the next condition or perform a swap/shift.
+                </span>
+              </div>
+            </div>
+
+            <!-- Current Mini Array Visual Representation -->
+            <div class="mini-array-section">
+              <span class="mini-array-title">Current Array</span>
+              <div class="mini-array-strip" id="mini-array-strip"></div>
+            </div>
+
+            <!-- Hidden elements for legacy metrics compatibility -->
+            <div style="display:none;">
+              <span id="narration-text"></span>
+              <span id="metric-comparisons">0</span>
+              <span id="metric-swaps">0</span>
+              <span id="metric-time">0.0s</span>
+              <span id="comp-time-best">O(n)</span>
+              <span id="comp-time-worst">O(n²)</span>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- ==================== HELP & KEYBOARD SHORTCUTS MODAL ==================== -->
+    <div class="modal-backdrop" id="help-modal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">Keyboard Shortcuts & Learning Guide</div>
+          <button class="btn btn-icon" id="btn-close-help">✕</button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+            Navigate and learn algorithms smoothly with dedicated keyboard shortcuts:
+          </p>
+          <div class="shortcut-row">
+            <span>Play / Pause Execution</span>
+            <span class="kbd">Space</span>
+          </div>
+          <div class="shortcut-row">
+            <span>Step Forward</span>
+            <span class="kbd">→ (Right Arrow)</span>
+          </div>
+          <div class="shortcut-row">
+            <span>Step Backward (Time Travel)</span>
+            <span class="kbd">← (Left Arrow)</span>
+          </div>
+          <div class="shortcut-row">
+            <span>Reset Algorithm</span>
+            <span class="kbd">R</span>
+          </div>
+          <div class="shortcut-row">
+            <span>Toggle Sound (Mute / Unmute)</span>
+            <span class="kbd">M</span>
+          </div>
+          <div class="shortcut-row">
+            <span>Search Algorithms</span>
+            <span class="kbd">/</span>
+          </div>
+          <div class="shortcut-row">
+            <span>Open Help Guide</span>
+            <span class="kbd">?</span>
+          </div>
+
+          <h4 style="margin-top: 14px; font-size: 13px; color: var(--accent-primary);">Core Product Philosophy</h4>
+          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-top: 4px;">
+            <em>"Don't just watch the algorithm. See the code think."</em><br>
+            Every step highlights the exact code line, performs the synchronized visual operation, draws movement paths, and explains what happened, why it happened, and what comes next.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" id="btn-got-it">Got it!</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== PRACTICE & CUSTOM INPUT MODAL ==================== -->
+    <div class="modal-backdrop" id="custom-input-modal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">Custom Array Input</div>
+          <button class="btn btn-icon" id="btn-close-custom-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 10px;">
+            Enter comma-separated numbers (between 5 and 100) to visualize your custom data:
+          </p>
+          <input type="text" class="input-field" id="custom-array-input" value="34, 12, 89, 45, 67, 23, 90, 15" style="width: 100%; font-family: var(--font-mono); margin-bottom: 12px;">
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button class="btn" onclick="document.getElementById('custom-array-input').value='5, 2, 4, 6, 1, 3'">Example (5, 2, 4, 6, 1, 3)</button>
+            <button class="btn" onclick="document.getElementById('custom-array-input').value='10, 9, 8, 7, 6, 5, 4, 3, 2, 1'">Reverse (10..1)</button>
+            <button class="btn" onclick="document.getElementById('custom-array-input').value='20, 25, 30, 35, 40, 45, 50'">Sorted (20..50)</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" id="btn-cancel-custom">Cancel</button>
+          <button class="btn btn-primary" id="btn-apply-custom">Apply & Visualize</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== AUTH MODAL (LOGIN / REGISTER) ==================== -->
+    <div class="modal-backdrop auth-scope" id="auth-modal">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+        <div class="modal-header">
+          <div class="modal-title" id="auth-modal-title">Welcome to AlgoPulse</div>
+          <button class="btn btn-icon" id="btn-close-auth" aria-label="Close">✕</button>
+        </div>
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab active" data-auth-tab="login">Log in</button>
+          <button type="button" class="auth-tab" data-auth-tab="register">Create account</button>
+        </div>
+
+        <!-- Login -->
+        <form id="login-form" class="auth-form" novalidate>
+          <div class="modal-body">
+            <div class="auth-alert" id="login-alert" role="alert" hidden></div>
+            <label class="auth-field">
+              <span>Email or username</span>
+              <input type="text" class="input-field" id="login-identifier" autocomplete="username" maxlength="255">
+              <small class="auth-field-error" id="err-login-identifier" hidden></small>
+            </label>
+            <label class="auth-field">
+              <span>Password</span>
+              <input type="password" class="input-field" id="login-password" autocomplete="current-password" maxlength="128">
+              <small class="auth-field-error" id="err-login-password" hidden></small>
+            </label>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" id="btn-login-submit">
+              <span class="btn-spinner" hidden></span><span class="btn-label">Log in</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Register -->
+        <form id="register-form" class="auth-form" novalidate hidden>
+          <div class="modal-body">
+            <div class="auth-alert" id="register-alert" role="alert" hidden></div>
+            <label class="auth-field">
+              <span>Username</span>
+              <input type="text" class="input-field" id="reg-username" autocomplete="username" maxlength="30">
+              <small class="auth-hint">3–30 characters: letters, numbers, underscore</small>
+              <small class="auth-field-error" id="err-reg-username" hidden></small>
+            </label>
+            <label class="auth-field">
+              <span>Email</span>
+              <input type="email" class="input-field" id="reg-email" autocomplete="email" maxlength="255">
+              <small class="auth-field-error" id="err-reg-email" hidden></small>
+            </label>
+            <label class="auth-field">
+              <span>Full name (optional)</span>
+              <input type="text" class="input-field" id="reg-fullname" autocomplete="name" maxlength="100">
+            </label>
+            <label class="auth-field">
+              <span>Password</span>
+              <input type="password" class="input-field" id="reg-password" autocomplete="new-password" maxlength="128">
+              <small class="auth-hint">At least 8 characters, with a letter and a number</small>
+              <small class="auth-field-error" id="err-reg-password" hidden></small>
+            </label>
+            <label class="auth-field">
+              <span>Confirm password</span>
+              <input type="password" class="input-field" id="reg-confirm" autocomplete="new-password" maxlength="128">
+              <small class="auth-field-error" id="err-reg-confirm" hidden></small>
+            </label>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" id="btn-register-submit">
+              <span class="btn-spinner" hidden></span><span class="btn-label">Create account</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ==================== PROFILE MODAL ==================== -->
+    <div class="modal-backdrop auth-scope" id="profile-modal">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
+        <div class="modal-header">
+          <div class="modal-title" id="profile-modal-title">Your profile</div>
+          <button class="btn btn-icon" id="btn-close-profile" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="profile-summary">
+            <span class="avatar avatar-lg" id="profile-avatar">A</span>
+            <div>
+              <div class="profile-summary-name" id="profile-display-name">—</div>
+              <div class="profile-summary-meta" id="profile-meta"></div>
+            </div>
+          </div>
+
+          <form id="profile-form" class="profile-section" novalidate>
+            <div class="profile-section-title">Edit profile</div>
+            <div class="auth-alert" id="profile-alert" role="alert" hidden></div>
+            <label class="auth-field">
+              <span>Full name</span>
+              <input type="text" class="input-field" id="profile-fullname" autocomplete="name" maxlength="100">
+            </label>
+            <div class="auth-inline-actions">
+              <button type="submit" class="btn btn-primary" id="btn-profile-save">
+                <span class="btn-spinner" hidden></span><span class="btn-label">Save changes</span>
+              </button>
+            </div>
+          </form>
+
+          <form id="password-form" class="profile-section" novalidate>
+            <div class="profile-section-title">Change password</div>
+            <div class="auth-alert" id="password-alert" role="alert" hidden></div>
+            <label class="auth-field">
+              <span>Current password</span>
+              <input type="password" class="input-field" id="cur-password" autocomplete="current-password" maxlength="128">
+              <small class="auth-field-error" id="err-cur-password" hidden></small>
+            </label>
+            <label class="auth-field">
+              <span>New password</span>
+              <input type="password" class="input-field" id="new-password" autocomplete="new-password" maxlength="128">
+              <small class="auth-field-error" id="err-new-password" hidden></small>
+            </label>
+            <label class="auth-field">
+              <span>Confirm new password</span>
+              <input type="password" class="input-field" id="new-confirm" autocomplete="new-password" maxlength="128">
+              <small class="auth-field-error" id="err-new-confirm" hidden></small>
+            </label>
+            <div class="auth-inline-actions">
+              <button type="submit" class="btn" id="btn-password-submit">
+                <span class="btn-spinner" hidden></span><span class="btn-label">Update password</span>
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer space-between">
+          <button type="button" class="btn btn-danger" id="btn-logout">Log out</button>
+          <button type="button" class="btn" id="btn-profile-close">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast notifications (success / error messages) -->
+    <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/code-snippets.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/modules/sorting.js"></script>
+  <script src="js/modules/pathfinding.js"></script>
+  <script src="js/modules/trees.js"></script>
+  <script src="js/modules/searching.js"></script>
+  <script src="js/modules/dp.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,524 @@
+/* ==========================================================
+   ALGORITHM VISUALIZER - APPLICATION LAYOUT & SHELL
+   Structure:
+   - Top Navigation Header (Brand, Mode Tabs, Global Search, Theme Toggle)
+   - Main Workspace Grid:
+     1. Left Sidebar: Collapsible Algorithm Categories & Search Filter
+     2. Center Content:
+        - Stage Header (Title, One-line Summary, Complexity Badges)
+        - Visualizer Canvas (Bars, Indices, Arrow Overlay, Legend)
+        - Playback Controls Bar (Play/Pause, Step, Speed Slider, Presets)
+        - Bottom Learning Area (Synchronized Code Editor & Learning Step Card)
+   ========================================================== */
+
+#app-container {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-canvas);
+}
+
+/* ----------------------------------------------------------
+   1. TOP NAVIGATION HEADER
+   ---------------------------------------------------------- */
+.top-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  padding: 0 18px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  z-index: 50;
+  flex-shrink: 0;
+  gap: 16px;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--accent-soft);
+  border: 1px solid rgba(217, 119, 6, 0.3);
+  border-radius: var(--radius-sm);
+  color: var(--accent-primary);
+}
+
+.brand-logo svg {
+  width: 18px;
+  height: 18px;
+}
+
+.brand-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.brand-title span {
+  color: var(--accent-primary);
+}
+
+/* Nav Mode Tabs (Visualize, Learn, Practice) */
+.nav-mode-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-card);
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.nav-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.nav-mode-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-surface-elevated);
+}
+
+.nav-mode-btn.active {
+  color: #ffffff;
+  background: var(--accent-primary);
+  font-weight: 600;
+}
+
+[data-theme="light"] .nav-mode-btn.active {
+  color: #ffffff;
+}
+
+/* Global Algorithm Search Bar */
+.search-bar-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 260px;
+  max-width: 100%;
+}
+
+.search-bar-wrapper svg {
+  position: absolute;
+  left: 10px;
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.search-bar-input {
+  width: 100%;
+  padding: 6px 12px 6px 30px;
+  font-size: 12.5px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.search-bar-input:focus {
+  background: var(--bg-surface);
+  border-color: var(--border-focus);
+}
+
+.search-bar-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Nav Actions Right */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.audio-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-card);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.audio-controls input[type="range"] {
+  width: 50px;
+}
+
+/* ----------------------------------------------------------
+   2. MAIN WORKSPACE CONTAINER (3-COLUMN LEARNING LAYOUT)
+   ---------------------------------------------------------- */
+.workspace-container {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ----------------- LEFT SIDEBAR: ALGORITHM NAVIGATION ----------------- */
+.sidebar-nav {
+  width: 240px;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: transform var(--transition-normal), width var(--transition-normal);
+  z-index: 30;
+}
+
+.sidebar-nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sidebar-nav-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sidebar-nav-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Category Accordion Group */
+.nav-category-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  user-select: none;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.nav-category-header:hover {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.nav-category-header.active-cat {
+  color: var(--text-primary);
+}
+
+.nav-category-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-category-title svg {
+  width: 14px;
+  height: 14px;
+  color: var(--accent-primary);
+}
+
+.nav-category-arrow {
+  width: 12px;
+  height: 12px;
+  transition: transform var(--transition-fast);
+  color: var(--text-muted);
+}
+
+.nav-category-group.expanded .nav-category-arrow {
+  transform: rotate(90deg);
+}
+
+/* Category Items Sub-list */
+.nav-items-sublist {
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 24px;
+  margin-top: 2px;
+  margin-bottom: 6px;
+}
+
+.nav-category-group.expanded .nav-items-sublist {
+  display: flex;
+}
+
+.nav-item-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-radius: var(--radius-xs);
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.nav-item-link:hover {
+  color: var(--text-primary);
+  background: var(--bg-card);
+}
+
+.nav-item-link.active {
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  font-weight: 600;
+}
+
+/* ----------------- CENTER STAGE & LEARNING SECTION ----------------- */
+.main-stage-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-y: auto;
+  position: relative;
+  background: var(--bg-canvas);
+}
+
+/* 1. Stage Header: Title & Complexity Bar */
+.stage-header-card {
+  padding: 16px 24px 12px 24px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.stage-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.stage-title-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.stage-algo-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: var(--text-primary);
+}
+
+.stage-algo-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  max-width: 780px;
+}
+
+.stage-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+/* 2. Visualizer Canvas Stage */
+.stage-viewport-section {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 24px;
+  gap: 12px;
+}
+
+/* Dynamic Sub-Controls Bar */
+.visualizer-subcontrols-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: var(--bg-surface);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.control-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Canvas Viewport Frame */
+.viewport-card {
+  position: relative;
+  height: 280px;
+  min-height: 240px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+}
+
+.visualizer-viewport {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none;
+  overflow: hidden;
+}
+
+.visualizer-viewport.active {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Legend Underneath Canvas */
+.canvas-legend-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 8px 14px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-xs);
+}
+
+/* 3. Playback Controls Bar */
+.playback-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.playback-actions-center {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 4. Bottom Learning Area: Split Grid (Code Panel + Learning Step Card) */
+.learning-split-panel {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 16px;
+  padding: 0 24px 24px 24px;
+}
+
+/* Responsive Styles */
+@media (max-width: 1080px) {
+  .learning-split-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .sidebar-nav {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    transform: translateX(-100%);
+    box-shadow: var(--shadow-lg);
+  }
+  .sidebar-nav.open {
+    transform: translateX(0);
+  }
+  .stage-viewport-section, .learning-split-panel {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+}

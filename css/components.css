@@ -1,0 +1,502 @@
+/* ==========================================================
+   ALGORITHM VISUALIZER - COMPONENTS STYLING
+   Components:
+   - Code Panel (Editor, Syntax Tokens, Active Line Marker, Tabs)
+   - Learning Step Card (Step Counter, What's Happening, Why, Mini Array)
+   - Modals (Help, Practice / Custom Input)
+   - Metrics & Progress Indicators
+   ========================================================== */
+
+/* ----------------------------------------------------------
+   1. CODE VIEWER & MULTI-TAB PANEL
+   ---------------------------------------------------------- */
+.code-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  min-height: 290px;
+}
+
+.code-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+/* Tabs: Code, Explanation, Pseudocode, Complexity */
+.code-panel-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.code-tab-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.code-tab-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-surface-elevated);
+}
+
+.code-tab-btn.active {
+  color: var(--accent-text);
+  background: var(--bg-surface);
+  font-weight: 600;
+  border: 1px solid var(--border-subtle);
+}
+
+/* Language Selector Dropdown */
+.lang-selector-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lang-selector-select {
+  padding: 3px 8px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+}
+
+/* Code Pre & Lines */
+.code-pre-container {
+  flex: 1;
+  background: var(--bg-code);
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: 10px 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.65;
+  position: relative;
+  max-height: 320px;
+}
+
+.code-line {
+  display: flex;
+  align-items: center;
+  padding: 1px 14px 1px 6px;
+  position: relative;
+  transition: background-color var(--transition-fast);
+  min-height: 22px;
+}
+
+.code-line:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+[data-theme="light"] .code-line:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Active Line Highlight & Execution Marker */
+.code-line.active {
+  background-color: var(--accent-soft) !important;
+  font-weight: 500;
+}
+
+.code-line-marker {
+  width: 16px;
+  font-size: 10px;
+  color: var(--accent-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.code-line.active .code-line-marker {
+  opacity: 1;
+}
+
+.code-line-num {
+  width: 28px;
+  color: var(--text-muted);
+  user-select: none;
+  text-align: right;
+  padding-right: 12px;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.code-line.active .code-line-num {
+  color: var(--accent-primary);
+  opacity: 1;
+  font-weight: 700;
+}
+
+.code-line-content {
+  color: var(--text-primary);
+  white-space: pre;
+  tab-size: 4;
+}
+
+/* Syntax Highlighting Tokens */
+.tok-kw { color: #f59e0b; font-weight: 600; }        /* Keywords (def, for, while, if) */
+.tok-fn { color: #38bdf8; }                          /* Function names */
+.tok-num { color: #34d399; }                         /* Numbers */
+.tok-str { color: #fb7185; }                         /* Strings */
+.tok-comment { color: var(--text-muted); font-style: italic; } /* Comments */
+.tok-op { color: #fbbf24; }                          /* Operators */
+
+[data-theme="light"] .tok-kw { color: #b45309; font-weight: 600; }
+[data-theme="light"] .tok-fn { color: #0284c7; }
+[data-theme="light"] .tok-num { color: #16a34a; }
+[data-theme="light"] .tok-str { color: #e11d48; }
+[data-theme="light"] .tok-comment { color: #8893a4; }
+[data-theme="light"] .tok-op { color: #d97706; }
+
+/* Secondary Tabs Content Container */
+.tab-content-panel {
+  display: none;
+  padding: 16px;
+  overflow-y: auto;
+  max-height: 320px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.tab-content-panel.active {
+  display: block;
+}
+
+.tab-content-panel h4 {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.tab-content-panel p {
+  margin-bottom: 10px;
+}
+
+.tab-content-panel ul {
+  padding-left: 18px;
+  margin-bottom: 12px;
+}
+
+.tab-content-panel li {
+  margin-bottom: 4px;
+}
+
+/* ----------------------------------------------------------
+   2. LEARNING STEP CARD
+   ---------------------------------------------------------- */
+.learning-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.learning-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.step-indicator-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.step-counter-pill {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(217, 119, 6, 0.25);
+}
+
+.step-nav-buttons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.step-nav-btn {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 12px;
+  transition: all var(--transition-fast);
+}
+
+.step-nav-btn:hover:not(:disabled) {
+  background: var(--bg-surface-elevated);
+  border-color: var(--border-medium);
+}
+
+.step-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Progress bar */
+.learning-progress-track {
+  width: 100%;
+  height: 3px;
+  background: var(--border-subtle);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: -6px;
+}
+
+.learning-progress-fill {
+  height: 100%;
+  background: var(--accent-primary);
+  width: 0%;
+  transition: width var(--transition-fast);
+}
+
+/* What's Happening Section */
+.learning-op-headline {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.learning-explanation-text {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Why & Next Callouts */
+.learning-callout-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.learning-callout {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  background: var(--bg-card);
+  border-radius: var(--radius-xs);
+  border-left: 3px solid var(--accent-primary);
+}
+
+.learning-callout.callout-next {
+  border-left-color: var(--color-sorted);
+}
+
+.learning-callout-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.learning-callout-content {
+  font-size: 12px;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+/* Current Array Mini Strip */
+.mini-array-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.mini-array-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.mini-array-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 4px 2px 8px 2px;
+}
+
+.mini-array-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 32px;
+  flex-shrink: 0;
+}
+
+.mini-array-cell {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+
+.mini-array-index {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+/* Mini Cell Highlights */
+.mini-array-cell.state-key {
+  background: var(--color-key-soft);
+  border-color: var(--color-key);
+  color: var(--accent-text);
+  transform: translateY(-2px);
+}
+
+.mini-array-cell.state-comparing {
+  background: var(--color-comparing-soft);
+  border-color: var(--color-comparing);
+  color: var(--color-comparing);
+  transform: translateY(-2px);
+}
+
+.mini-array-cell.state-sorted {
+  background: var(--color-sorted-soft);
+  border-color: var(--color-sorted);
+  color: var(--color-sorted);
+}
+
+/* ----------------------------------------------------------
+   3. MODALS
+   ---------------------------------------------------------- */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-backdrop.active {
+  display: flex;
+}
+
+.modal-card {
+  width: 90%;
+  max-width: 480px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalFadeIn {
+  0% { transform: scale(0.96); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.modal-body {
+  padding: 16px 18px;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  padding: 12px 18px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.shortcut-row:last-child {
+  border-bottom: none;
+}
